@@ -1,0 +1,120 @@
+:root {
+    width: 100%;
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.87);
+    background-color: #242424;
+}
+#root {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.page {
+    display: flex;
+    flex-direction: column;
+    max-width: 1200px;
+    gap: 1rem;
+}
+header {
+    display: flex;
+    justify-content: center;
+
+}
+main {
+    display: flex;
+}
+
+.items {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 3rem;
+    padding: 0;
+}
+.item {
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+.item h5 {
+    margin-bottom: 0;
+}
+.flagWrap {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    background: transparent;
+    overflow: hidden;
+    .item:hover img {
+        transform: translateY(-6px) scale(1.03);
+        box-shadow: 0 8px 22px rgba(0,0,0,.12);
+    }
+}
+.flagWrap img {
+    height: auto;
+    max-width: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.item:hover img {
+    animation: hop 220ms cubic-bezier(.2,.8,.2,1);
+}
+
+@keyframes hop {
+    0%   { transform: translateY(0) }
+    50%  { transform: translateY(-8px) }
+    100% { transform: translateY(0) }
+}
+
+.page.country-detail{
+    width:min(860px, 100%);
+    margin-inline:auto;
+    padding:16px;
+    display:grid;
+    gap:12px;
+    justify-items:center;
+    text-align:center;
+}
+
+.flagBox{
+    width:min(520px, 100%);
+    aspect-ratio:3/2;
+    display:grid; place-items:center;
+    background:#111; border:1px solid #222; border-radius:8px; overflow:hidden;
+}
+.flag{ width:100%; height:100%; object-fit:contain; display:block; }
+
+
+.title{ margin:8px 0 0; font-weight:700; font-size:1.4rem; }
+
+
+.info{
+    width:min(700px, 100%);
+    display:grid; grid-template-columns:140px 1fr;
+    gap:6px 12px; align-items:baseline;
+    text-align:left;
+}
+.info dt{ color:#9ca3af; }
+.info dd{ margin:0; }
+
+.links{ display:flex; gap:10px; justify-content:center; }
+.link{
+    display:inline-block;
+    padding:6px 10px;
+    border:1px solid rgba(255,255,255,.25);
+    border-radius:8px;
+    background:transparent;
+    color:inherit;
+    text-decoration:none;
+    transition:border-color .15s ease, background .15s ease, transform .15s ease;
+}
+.link:hover{
+    border-color:rgba(255,255,255,.5);
+    background:rgba(255,255,255,.06);
+    transform:translateY(-1px);
+}
