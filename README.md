@@ -1,69 +1,96 @@
-# Countries App (React + TypeScript + Vite)
+# Countries SPA (React + TypeScript)
 
-#### Minimal SPA that lists countries and shows a detail view using the public REST Countries API (no API key required).
-#### Styling is plain CSS/CSS. Data flow is handled with small services and custom hooks.
+A simple single-page app that lists countries and shows details.  
+It’s intentionally small but “real”—covering **data fetching (3 styles)**, **custom hooks**, **React Query search with debounce + cache**, **dark/light theme via Context**, **CSS-only UI**, and a **Vitest + Testing Library** test suite.
 
-# Initial Setup / Configuration
+---
 
-## Prerequisites
-Node.js 18+ (recommended 20 LTS)
-npm
+## ✨ Why these design choices?
 
-## Install & Run
-```js
+### 1) 3 fetch styles on purpose
+We demonstrate both patterns so you can compare trade-offs:
+
+- **Promise chaining (`then`)** – used in `fetchCountries`  
+  - **Pros:** Tiny; easy to show mapping pipelines.  
+  - **Cons:** Can get noisy with error/cleanup; less linear control flow.
+- **`async`/`await`** – used in `fetchCountryDetail` and `fetchCountriesByName`  
+  - **Pros:** Reads like synchronous code; easy try/catch/finally; great for branching.  
+  - **Cons:** Slightly more boilerplate.
+
+> In both cases, **services map raw DTOs** to our internal types to keep the rest of the app clean and safe.
+
+### 2) Extracting logic into **custom hooks**
+Components should render; hooks should “think”.
+
+- `useCountry` – initial fetch of the full list (async); manages loading & error.  
+- `useCountryDetail` – fetches and stores one country.  
+- `useCountrySearch` – debounced input + React Query cache + staleTime handling.  
+- `useSort` – memoizes sorting without mutating.
+
+This separation:
+- Keeps components minimal and declarative.  
+- Makes logic reusable across screens.  
+- Greatly simplifies testing (you can test hooks in isolation).
+
+### 3) Context for theme (light/dark)
+We use a `ThemeProvider` with `useTheme` hook:  
+- Wraps app once; all components can read/update theme.  
+- Syncs with `document.body.classList` to allow global CSS changes.  
+- Tested with a fake toggle button.
+
+### 4) CSS-only UI
+Minimal **CSS Modules / global classes**:
+- Grid layout for list.  
+- `box-shadow` for flag elevation.  
+- Responsive & minimalistic.
+
+No heavy UI kit—shows how far plain CSS can go.
+
+### 5) Testing strategy
+We use **Vitest + Testing Library**:
+- **Hooks** tested via `renderHook`, mocking fetch services.  
+- **Components** tested for loading, error, data states, navigation, and theme toggle.  
+- **Services** tested with mocked `fetch`, including success, 404 empty, and error.
+
+This ensures:  
+- Each layer works in isolation.  
+- Bugs are caught without manual clicking.
+
+---
+
+## 🚀 Setup & Run
+
+```bash
+# Install deps
 npm install
 
+# Start dev server
 npm run dev
 
+# Build for production
 npm run build
 
+# Preview production build
 npm run preview
-```
-## Data Fetching Styles Used
 
-#### The project intentionally shows two ways to fetch with the native fetch API—so you can compare ergonomics and testing patterns:
-
- 1. Promise chaining (.then)
- 2. async/await
-
-## Running Tests
-
-```sh
-# Run all tests
+# Run tests
 npm test
-
-# Watch mode
-npm run test:watch
-
-# Single run (CI)
-npm run test:run
 ```
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+## 📂 Structure
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+src/
+ ├─ components/       # Dumb presentational pieces (Items, ItemList, etc.)
+ ├─ context/          # ThemeContext (light/dark)
+ ├─ hooks/            # useCountry, useCountryDetail, useCountrySearch, useSort
+ ├─ mappers/          # DTO → domain mappers
+ ├─ pages/            # Home, Detail
+ ├─ services/         # fetchCountries, fetchCountryDetail, fetchCountriesByName
+ ├─ types/            # Country, CountryDetail, DTOs
+ └─ test/             # fetch mocks, setup
+```
+
+---

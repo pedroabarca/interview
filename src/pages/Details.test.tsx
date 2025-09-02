@@ -1,7 +1,9 @@
 import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { vi, describe, it, expect, afterEach, type MockedFunction } from 'vitest'
 
+// ---- Minimal types used by the tests ----
 type Detail = {
   code: string
   name: string
@@ -13,32 +15,45 @@ type Detail = {
   timezones: string[]
   flag: string
   maps: { googleMaps?: string; openStreetMaps?: string }
-}
+};
 type UseCountryDetailResult = {
   country: Detail | null
   loading: boolean
   error: string | null
   getCountryDetail: (code: string) => void | Promise<void>
-}
+};
 
-vi.mock('../hooks/useCountry', () => ({
+// ---- Mocks ----
+
+// Theme context (so we can assert label & clicks without real provider)
+vi.mock('../context/ThemeContext', () => ({
+  useTheme: vi.fn(() => ({ theme: 'light', toggleTheme: vi.fn() })),
+}));
+
+// Country detail hook (path matches your component import)
+vi.mock('../hooks/countries/useCountry', () => ({
   useCountryDetail: vi.fn<() => UseCountryDetailResult>(),
-}))
+}));
 
-import Detail from './Detail'
-import { useCountryDetail } from '../hooks/useCountry'
+// ---- Imports AFTER mocks ----
+import DetailPage from './Detail'
+import { useCountryDetail } from '../hooks/countries/useCountry'
+import { useTheme } from '../context/ThemeContext'
 
 const mockedUseCountryDetail = useCountryDetail as unknown as MockedFunction<
     () => UseCountryDetailResult
 >
+const mockedUseTheme = useTheme as unknown as MockedFunction<
+    () => { theme: 'light' | 'dark'; toggleTheme: () => void }
+>
 
-afterEach(() => vi.clearAllMocks())
+afterEach(() => vi.clearAllMocks());
 
 function renderWithRoute(initialPath = '/countries/CRI') {
   return render(
       <MemoryRouter initialEntries={[initialPath]}>
         <Routes>
-          <Route path="/countries/:code" element={<Detail />} />
+          <Route path="/countries/:code" element={<DetailPage />} />
         </Routes>
       </MemoryRouter>
   )
@@ -51,9 +66,9 @@ describe('Detail', () => {
       loading: true,
       error: null,
       getCountryDetail: vi.fn(),
-    })
-    renderWithRoute()
-    expect(screen.getByText(/loading/i)).toBeInTheDocument()
+    });
+    renderWithRoute();
+    expect(screen.getByText(/loading/i)).toBeInTheDocument();
   })
 
   it('shows error', () => {
@@ -62,9 +77,9 @@ describe('Detail', () => {
       loading: false,
       error: 'Oops',
       getCountryDetail: vi.fn(),
-    })
-    renderWithRoute()
-    expect(screen.getByText(/error: oops/i)).toBeInTheDocument()
+    });
+    renderWithRoute();
+    expect(screen.getByText(/error: oops/i)).toBeInTheDocument();
   })
 
   it('calls getCountryDetail with code from params', async () => {
@@ -74,9 +89,9 @@ describe('Detail', () => {
       loading: false,
       error: null,
       getCountryDetail: spy,
-    })
-    renderWithRoute('/countries/CRI')
-    await waitFor(() => expect(spy).toHaveBeenCalledWith('CRI'))
+    });
+    renderWithRoute('/countries/CRI');
+    await waitFor(() => expect(spy).toHaveBeenCalledWith('CRI'));
   })
 
   it('renders country data, flag and map links', () => {
@@ -94,36 +109,34 @@ describe('Detail', () => {
         googleMaps: 'https://maps.google.com/?q=costa+rica',
         openStreetMaps: 'https://www.openstreetmap.org/relation/287667',
       },
-    }
+    };
 
     mockedUseCountryDetail.mockReturnValue({
       country,
       loading: false,
       error: null,
       getCountryDetail: vi.fn(),
-    })
+    });
 
-    renderWithRoute()
+    renderWithRoute();
 
-    expect(screen.getByRole('heading', { name: /costa rica/i })).toBeInTheDocument()
-    expect(screen.getByText(/americas/i)).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: /costa rica/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /costa rica/i })).toBeInTheDocument();
+    expect(screen.getByText(/americas/i)).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /flag of costa rica/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /google maps/i }))
-        .toHaveAttribute('href', country.maps.googleMaps)
+        .toHaveAttribute('href', country.maps.googleMaps);
     expect(screen.getByRole('link', { name: /openstreetmap/i }))
-        .toHaveAttribute('href', country.maps.openStreetMaps)
+        .toHaveAttribute('href', country.maps.openStreetMaps);
   })
-})
 
-describe('Detail effect behavior', () => {
   it('does NOT refetch on rerender with the same :code', async () => {
-    const spy = vi.fn()
+    const spy = vi.fn();
     mockedUseCountryDetail.mockReturnValue({
       country: null,
       loading: false,
       error: null,
       getCountryDetail: spy,
-    })
+    });
 
     const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
         <MemoryRouter initialEntries={['/countries/CRI']}>
@@ -133,32 +146,74 @@ describe('Detail effect behavior', () => {
         </MemoryRouter>
     )
 
-    const { rerender } = render(<Detail />, { wrapper: Wrapper })
+    const { rerender } = render(<DetailPage />, { wrapper: Wrapper });
 
-    await waitFor(() => expect(spy).toHaveBeenCalledWith('CRI'))
-    expect(spy).toHaveBeenCalledTimes(1)
+    await waitFor(() => expect(spy).toHaveBeenCalledWith('CRI'));
+    expect(spy).toHaveBeenCalledTimes(1);
 
-    rerender(<Detail />)
-    expect(spy).toHaveBeenCalledTimes(1)
+    rerender(<DetailPage />);
+    expect(spy).toHaveBeenCalledTimes(1);
   })
 
   it('refetches when :code changes (new route)', async () => {
-    const spy = vi.fn()
+    const spy = vi.fn();
     mockedUseCountryDetail.mockReturnValue({
       country: null,
       loading: false,
       error: null,
       getCountryDetail: spy,
-    })
+    });
 
-    const { unmount } = renderWithRoute('/countries/CRI')
-    await waitFor(() => expect(spy).toHaveBeenCalledWith('CRI'))
+    const { unmount } = renderWithRoute('/countries/CRI');
+    await waitFor(() => expect(spy).toHaveBeenCalledWith('CRI'));
 
-    spy.mockClear()
-    unmount()
-    renderWithRoute('/countries/USA')
+    spy.mockClear();
+    unmount();
+    renderWithRoute('/countries/USA');
 
     await waitFor(() => expect(spy).toHaveBeenCalledWith('USA'))
-    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy).toHaveBeenCalledTimes(1);
+  })
+
+  it('shows Light/Dark label from theme and toggles on click', async () => {
+    const user = userEvent.setup();
+    const toggle = vi.fn();
+
+    // 1) Theme mock: start in light
+    mockedUseTheme.mockReturnValue({ theme: 'light', toggleTheme: toggle });
+
+    // 2) Provide a minimal country so Detail does NOT early-return
+    const country: Detail = {
+      code: 'CRI',
+      name: 'Costa Rica',
+      region: 'Americas',
+      capital: ['San José'],
+      population: 5094118,
+      languages: { spa: 'Spanish' },
+      currencies: { CRC: { name: 'Colón', symbol: '₡' } },
+      timezones: ['UTC-06:00'],
+      flag: 'https://flagcdn.com/cr.svg',
+      maps: {},
+    };
+    mockedUseCountryDetail.mockReturnValue({
+      country,
+      loading: false,
+      error: null,
+      getCountryDetail: vi.fn(),
+    });
+
+    renderWithRoute('/countries/CRI');
+
+    // Grab the button and assert text
+    const btn = screen.getByLabelText(/Toggle Theme/i);
+    expect(btn).toHaveTextContent(/dark/i);
+
+    await user.click(btn);
+    expect(toggle).toHaveBeenCalledTimes(1);
+
+    // 3) Re-render with dark theme to assert label switches
+    mockedUseTheme.mockReturnValue({ theme: 'dark', toggleTheme: toggle });
+    renderWithRoute('/countries/CRI');
+    expect(btn).toHaveTextContent(/dark/i);
   })
 })

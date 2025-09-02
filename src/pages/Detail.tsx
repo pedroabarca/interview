@@ -24,7 +24,7 @@ function Detail() {
     }, [code, getCountryDetail]);
 
     // Render loading, error, or country details
-    if (loading) return <p>Loading…</p>;
+    if (loading) return <p className="loading">Loading…</p>;
     if (error) return <p>Error: {error}</p>;
     if (!country) return <p>No Country found</p>;
     const capital = country.capital[0] ?? '—';
@@ -38,8 +38,8 @@ function Detail() {
 
     return (
         <div className="page country-detail">
-            <button className="themeToggle" onClick={toggleTheme}>
-                {theme === 'dark' ? '🌙 Dark' : '☀️ Light'}
+            <button aria-label="Toggle theme" className="themeToggle" onClick={toggleTheme}>
+                {theme === 'dark' ? '☀️ Set Light Mode' : '🌙 Set Dark Mode' }
             </button>
             <div className="flagBox">
                 <img

@@ -44,7 +44,7 @@ export const useCountryDetail = () => {
         } finally {
             setLoading(false)
         }
-    }, [])
+    }, []);
 
-    return { country: country, loading, error, getCountryDetail }
+    return { country: country, loading, error, getCountryDetail };
 }

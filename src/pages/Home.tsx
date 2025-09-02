@@ -45,9 +45,6 @@ function Home() {
             <header>
                 <h1>Search Countries</h1>
                 <div className="controls">
-                    <button className="themeToggle" onClick={toggleTheme}>
-                        {theme === 'dark' ? '🌙 Dark' : '☀️ Light'}
-                    </button>
                     <input
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
@@ -64,6 +61,9 @@ function Home() {
                         />
                         Sort by name
                     </label>
+                    <button className="themeToggle" onClick={toggleTheme}>
+                        {theme === 'dark' ? '☀️ Set Light Mode' : '🌙 Set Dark Mode' }
+                    </button>
                 </div>
             </header>
 
