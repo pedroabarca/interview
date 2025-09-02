@@ -43,7 +43,13 @@ function Home() {
     return (
         <div className="page">
             <header>
+                <div className="headerTop">
+                    <button className="themeToggle" onClick={toggleTheme}>
+                        {theme === 'dark' ? '☀️ Set Light Mode' : '🌙 Set Dark Mode' }
+                    </button>
+                </div>
                 <h1>Search Countries</h1>
+
                 <div className="controls">
                     <input
                         value={query}
@@ -61,9 +67,6 @@ function Home() {
                         />
                         Sort by name
                     </label>
-                    <button className="themeToggle" onClick={toggleTheme}>
-                        {theme === 'dark' ? '☀️ Set Light Mode' : '🌙 Set Dark Mode' }
-                    </button>
                 </div>
             </header>
 
