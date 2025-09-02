@@ -8,7 +8,7 @@ It’s intentionally small but “real”—covering **data fetching (3 styles)*
 ## ✨ Why these design choices?
 
 ### 1) Two fetch styles on purpose
-We demonstrate both patterns so you can compare trade-offs:
+We demonstrate both patterns so you can compare trade-offs and also using React Query for search.
 
 - **Promise chaining (`then`)** – used in `fetchCountries`  
   - **Pros:** Tiny; easy to show mapping pipelines.  
