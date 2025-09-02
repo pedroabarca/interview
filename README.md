@@ -7,7 +7,7 @@ It’s intentionally small but “real”—covering **data fetching (3 styles)*
 
 ## ✨ Why these design choices?
 
-### 1) 3 fetch styles on purpose
+### 1) Two fetch styles on purpose
 We demonstrate both patterns so you can compare trade-offs:
 
 - **Promise chaining (`then`)** – used in `fetchCountries`  
@@ -58,6 +58,22 @@ This ensures:
 
 ---
 
+## 📂 Structure
+
+```
+src/
+ ├─ components/       # Dumb presentational pieces (Items, ItemList, etc.)
+ ├─ context/          # ThemeContext (light/dark)
+ ├─ hooks/            # useCountry, useCountryDetail, useCountrySearch, useSort
+ ├─ mappers/          # DTO → domain mappers
+ ├─ pages/            # Home, Detail
+ ├─ services/         # fetchCountries, fetchCountryDetail, fetchCountriesByName
+ ├─ types/            # Country, CountryDetail, DTOs
+ └─ test/             # fetch mocks, setup
+```
+
+---
+
 ## 🚀 Setup & Run
 
 ```bash
@@ -75,22 +91,6 @@ npm run preview
 
 # Run tests
 npm test
-```
-
----
-
-## 📂 Structure
-
-```
-src/
- ├─ components/       # Dumb presentational pieces (Items, ItemList, etc.)
- ├─ context/          # ThemeContext (light/dark)
- ├─ hooks/            # useCountry, useCountryDetail, useCountrySearch, useSort
- ├─ mappers/          # DTO → domain mappers
- ├─ pages/            # Home, Detail
- ├─ services/         # fetchCountries, fetchCountryDetail, fetchCountriesByName
- ├─ types/            # Country, CountryDetail, DTOs
- └─ test/             # fetch mocks, setup
 ```
 
 ---
