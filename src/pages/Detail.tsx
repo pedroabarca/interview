@@ -1,12 +1,21 @@
+import { useTheme } from "../context/ThemeContext";
 import { useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { useCountryDetail } from '../hooks/useCountry';
+import { useCountryDetail } from '../hooks/countries/useCountry';
 
 function Detail() {
+
+    // Get theme and toggle function from context
+    const { theme, toggleTheme } = useTheme();
+
+    // Get the country code from the URL parameters
     const { code } = useParams<{ code: string }>();
+
     const { country, loading, error, getCountryDetail } = useCountryDetail();
+    // Ref to store the last fetched country code to avoid redundant fetches
     const lastIdRef = useRef<string | null>(null);
 
+    // Fetch country details when the code changes
     useEffect(() => {
         if (!code) return;
         if (lastIdRef.current === code) return;
@@ -14,6 +23,7 @@ function Detail() {
         void getCountryDetail(code);
     }, [code, getCountryDetail]);
 
+    // Render loading, error, or country details
     if (loading) return <p>Loading…</p>;
     if (error) return <p>Error: {error}</p>;
     if (!country) return <p>No Country found</p>;
@@ -28,6 +38,9 @@ function Detail() {
 
     return (
         <div className="page country-detail">
+            <button className="themeToggle" onClick={toggleTheme}>
+                {theme === 'dark' ? '🌙 Dark' : '☀️ Light'}
+            </button>
             <div className="flagBox">
                 <img
                     className="flag"

@@ -7,8 +7,8 @@ vi.mock('../services/countryService', () => ({
     fetchCountryDetail: vi.fn(),
 }))
 
-import { fetchCountries } from '../services/countryService'
-import type { Country } from '../types/country'
+import { fetchCountries } from '../../services/countryService'
+import type { Country } from '../../types/country'
 import type {MockedFunction} from "vitest";
 
 const mockedFetchCountries = fetchCountries as MockedFunction<typeof fetchCountries>

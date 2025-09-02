@@ -1,5 +1,10 @@
 import type {Country, CountryDetail, RestCountryDetailDto, RestCountryDto} from '../types/country.ts'
+
+// A default flag image URL to use when no flag is available
 const DEFAULT_FLAG_URL = 'https://www.pngmart.com/files/15/Blank-Flag-Vector-PNG.png';
+
+// Map a RestCountryDto to a Country
+// Here we provide default values for missing data to ensure the app remains robust
 export const toCountryDto = (country: RestCountryDto): Country => ({
     code: country.cca3,
         name: country.name?.common ?? country.cca3,
@@ -7,6 +12,8 @@ export const toCountryDto = (country: RestCountryDto): Country => ({
     flag: country.flags?.svg ?? country.flags?.png ?? DEFAULT_FLAG_URL,
 });
 
+// Map a RestCountryDetailDto(data coming from the api) to a CountryDetail
+// Here we provide default values for missing data to ensure the app remains robust
 export const toCountryDetailDto = (country: RestCountryDetailDto): CountryDetail => ({
     code: country.cca3,
     name: country.name?.common ?? 'Unknown',

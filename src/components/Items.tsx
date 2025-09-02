@@ -26,7 +26,7 @@ function ItemList({countries}: {countries: Country[]}) {
 }
 
 function ItemEmpty() {
-    return <p>No Countries available.</p>;
+    return <p>No Countries Found</p>;
 }
 
 export function Items({countries}: {countries: Country[]}) {
